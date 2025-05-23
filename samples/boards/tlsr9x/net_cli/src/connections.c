@@ -14,6 +14,13 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(connections, LOG_LEVEL_INF);
 
+#if CONFIG_OPENTHREAD_MANUAL_START
+#error openthread is not auto started
+#endif /* CONFIG_OPENTHREAD_MANUAL_START */
+#if !CONFIG_NET_DEFAULT_IF_ETHERNET
+#error ethernet is not default interface
+#endif /* CONFIG_OPENTHREAD_MANUAL_START */
+
 static connections_wifi_changed connections_wifi_changed_cb = NULL;
 static connections_thread_changed connections_thread_changed_cb = NULL;
 
@@ -98,10 +105,6 @@ void connections_init(connections_wifi_changed on_wifi, connections_thread_chang
 	} else {
 		LOG_ERR("wifi is not default interface");
 	}
-
-#if CONFIG_OPENTHREAD_MANUAL_START
-	LOG_ERR("openthread is not auto started");
-#endif /* CONFIG_OPENTHREAD_MANUAL_START */
 }
 
 #if !CONFIG_NET_CONFIG_AUTO_INIT
