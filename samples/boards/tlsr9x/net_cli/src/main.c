@@ -9,24 +9,28 @@
 #include <zephyr/net/openthread.h>
 #include <openthread/border_routing.h>
 
+#include <ot_rcp/otbr/otbr_ext.h>
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 void wifi_changed(struct net_if *iface, bool is_connected)
 {
-	ARG_UNUSED(iface);
-
 	if (is_connected) {
 		LOG_INF("** wifi connected");
 		otError err = otBorderRoutingInit(openthread_get_default_instance(),
 			net_if_get_by_iface(net_if_get_default()), true);
 
 		if (err == OT_ERROR_NONE) {
-			err = otBorderRoutingSetEnabled(openthread_get_default_instance(), true);
-			if (err == OT_ERROR_NONE) {
-				LOG_INF("openthread border router enabled");
+			if(otbr_ext_start(net_if_get_by_iface(iface))) {
+				err = otBorderRoutingSetEnabled(openthread_get_default_instance(), true);
+				if (err == OT_ERROR_NONE) {
+					LOG_INF("openthread border router enabled");
+				} else {
+					LOG_ERR("openthread border router enabling failed %d", err);
+				}
 			} else {
-				LOG_ERR("openthread border router enabling failed %d", err);
+				LOG_ERR("openthread border router start failed");
 			}
 		} else {
 			LOG_ERR("openthread border router init failed %d", err);
@@ -40,6 +44,7 @@ void wifi_changed(struct net_if *iface, bool is_connected)
 		} else {
 			LOG_ERR("openthread border router disabling failed %d", err);
 		}
+		otbr_ext_stop();
 	}
 }
 

@@ -52,6 +52,8 @@ config TELINK_W91_OT_SPINEL_RESPONSE_TIMEOUT_MS
 	help
 		This option sets Telink W91 Openthread spinel response timeout, mS.
 
+source "soc/telink/tlsr/telink_w9x/ot_rcp/otbr/Kconfig.otbr"
+
 endif # TELINK_W91_OT_RCP
 
 endif # IEEE802154

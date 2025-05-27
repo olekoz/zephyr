@@ -112,7 +112,8 @@ zephyr_sources(
 
 if(CONFIG_OPENTHREAD_BORDER_ROUTING)
 zephyr_sources(
-	ot_rcp/otbr_ext.c
+	ot_rcp/otbr/otbr_ext.c
+	ot_rcp/otbr/otbr_icmp.c
 )
 endif()
 
