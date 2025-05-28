@@ -22,6 +22,12 @@ static int icmp_input(struct net_icmp_ctx *ctx, struct net_pkt *pkt,
 	if (hdr->family != AF_INET6) {
 		return 0;
 	}
+	if (hdr->ipv6->hop_limit != 255) {
+		return 0;
+	}
+	if (!net_ipv6_is_ll_addr((struct in6_addr *)hdr->ipv6->src)) {
+		return 0;
+	}
 
 	size_t tot_len = net_pkt_get_len(pkt);
 	uint8_t ip_len = net_pkt_ip_hdr_len(pkt);
@@ -52,12 +58,10 @@ static int icmp_input(struct net_icmp_ctx *ctx, struct net_pkt *pkt,
 
 void wifi_changed(struct net_if *iface, bool is_connected)
 {
-	ARG_UNUSED(iface);
-
 	if (is_connected) {
 		LOG_INF("** wifi connected");
 		otError err = otBorderRoutingInit(openthread_get_default_instance(),
-			net_if_get_by_iface(net_if_get_default()), true);
+			net_if_get_by_iface(iface), true);
 
 		if (err == OT_ERROR_NONE) {
 			(void) net_icmp_init_ctx(&icmp_rs_ctx, 133, 0, icmp_input);

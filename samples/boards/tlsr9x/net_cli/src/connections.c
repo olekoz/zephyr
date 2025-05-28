@@ -85,6 +85,16 @@ static void ot_connection_changed(otChangedFlags flags,
 
 void connections_init(connections_wifi_changed on_wifi, connections_thread_changed on_thread)
 {
+	static const struct in6_addr icmp_rs_addr = {
+		.s6_addr = {
+			0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02
+		}
+	};
+
+	net_if_ipv6_maddr_join(net_if_get_default(),
+		net_if_ipv6_maddr_add(net_if_get_default(), &icmp_rs_addr));
+
 	connections_wifi_changed_cb = on_wifi;
 	connections_thread_changed_cb = on_thread;
 
