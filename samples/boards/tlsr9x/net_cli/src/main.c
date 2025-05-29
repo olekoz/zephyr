@@ -15,7 +15,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
-static struct net_icmp_ctx icmp_rs_ctx, icmp_ra_ctx;
+static struct net_icmp_ctx icmp_rs_ctx, icmp_ra_ctx, icmp_na_ctx;
 
 static int icmp_input(struct net_icmp_ctx *ctx, struct net_pkt *pkt,
 	struct net_icmp_ip_hdr *hdr, struct net_icmp_hdr *icmp_hdr, void *user_data)
@@ -67,6 +67,8 @@ void wifi_changed(struct net_if *iface, bool is_connected)
 			icmp_rs_ctx.iface = iface;
 			(void) net_icmp_init_ctx(&icmp_ra_ctx, 134, 0, icmp_input);
 			icmp_ra_ctx.iface = iface;
+			(void) net_icmp_init_ctx(&icmp_na_ctx, 136, 0, icmp_input);
+			icmp_na_ctx.iface = iface;
 			err = otBorderRoutingSetEnabled(openthread_get_default_instance(), true);
 			if (err == OT_ERROR_NONE) {
 				LOG_INF("openthread border router enabled");
@@ -81,6 +83,7 @@ void wifi_changed(struct net_if *iface, bool is_connected)
 		otError err = otBorderRoutingSetEnabled(openthread_get_default_instance(), false);
 		(void) net_icmp_cleanup_ctx(&icmp_rs_ctx);
 		(void) net_icmp_cleanup_ctx(&icmp_ra_ctx);
+		(void) net_icmp_cleanup_ctx(&icmp_na_ctx);
 
 		if (err == OT_ERROR_NONE) {
 			LOG_INF("openthread border router disabled");
