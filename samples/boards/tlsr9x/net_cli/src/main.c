@@ -8,6 +8,7 @@
 
 #include <zephyr/net/openthread.h>
 #include <openthread/border_routing.h>
+#include <openthread/platform/infra_if.h>
 
 #include <zephyr/net/icmp.h>
 
@@ -45,11 +46,9 @@ static int icmp_input(struct net_icmp_ctx *ctx, struct net_pkt *pkt,
 			if (net_pkt_read(pkt, icmp_data, sizeof(icmp_data)) < 0) {
 				break;
 			}
-			struct in6_addr *src = (struct in6_addr *) hdr->ipv6->src;
-
-			/* call otPlatInfraIfRecvIcmp6Nd */
-			LOG_HEXDUMP_INF(src, sizeof(struct in6_addr), "icmp from");
-			LOG_HEXDUMP_INF(icmp_data, sizeof(icmp_data), "icmp data");
+			otPlatInfraIfRecvIcmp6Nd(openthread_get_default_instance(),
+				net_if_get_by_iface(ctx->iface), (otIp6Address *)hdr->ipv6->src,
+				icmp_data, sizeof(icmp_data));
 		} while (0);
 		net_pkt_cursor_restore(pkt, &bkp);
 	}
